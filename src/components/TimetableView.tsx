@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { routes } from '../data/timetable';
 import type { Schedule } from '../data/timetable';
 import { formatTime } from '../lib/schedule';
@@ -17,6 +17,11 @@ const TABS: { key: Schedule; label: string }[] = [
 export function TimetableView({ currentMin, schedule }: Props) {
   const [open, setOpen] = useState(false);
   const [viewing, setViewing] = useState<Schedule>(schedule);
+
+  // schedule prop が変わったとき（祝日トグル等）は表示ダイヤも追従させる
+  useEffect(() => {
+    setViewing(schedule);
+  }, [schedule]);
 
   return (
     <div className="rounded-xl border border-slate-700 overflow-hidden">

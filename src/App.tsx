@@ -19,7 +19,9 @@ export default function App() {
 
   const currentMin = now.getHours() * 60 + now.getMinutes();
   const autoSchedule = getSchedule(now);
-  const schedule = holidayOverride ? 'holiday' : autoSchedule;
+  // 日曜は autoSchedule が既に 'holiday' のためトグルは無効
+  const isToggleEffective = autoSchedule !== 'holiday';
+  const schedule = (holidayOverride && isToggleEffective) ? 'holiday' : autoSchedule;
   const statuses = routes.map((r) => getRouteStatus(r, currentMin, schedule));
   const recommendedId = getRecommendedRoute(statuses);
   const recommended = statuses.find((s) => s.route.id === recommendedId);
@@ -37,24 +39,29 @@ export default function App() {
           <p className="text-xs text-slate-500 mt-1">{scheduleLabel(schedule)}</p>
         </header>
 
-        {/* 祝日ダイヤ切り替えトグル */}
-        <div className="flex items-center justify-between rounded-xl bg-slate-800 border border-slate-700 px-4 py-3">
-          <span className="text-sm text-slate-300">祝日ダイヤにする</span>
-          <button
-            role="switch"
-            aria-checked={holidayOverride}
-            onClick={() => setHolidayOverride((v) => !v)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              holidayOverride ? 'bg-amber-400' : 'bg-slate-600'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                holidayOverride ? 'translate-x-6' : 'translate-x-1'
+        {/* 祝日ダイヤ切り替えトグル（日曜は auto で休日ダイヤになるため非表示） */}
+        {isToggleEffective && (
+          <div className="flex items-center justify-between rounded-xl bg-slate-800 border border-slate-700 px-4 py-3">
+            <span id="holiday-toggle-label" className="text-sm text-slate-300">
+              祝日ダイヤにする
+            </span>
+            <button
+              role="switch"
+              aria-checked={holidayOverride}
+              aria-labelledby="holiday-toggle-label"
+              onClick={() => setHolidayOverride((v) => !v)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                holidayOverride ? 'bg-amber-400' : 'bg-slate-600'
               }`}
-            />
-          </button>
-        </div>
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  holidayOverride ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        )}
 
         {recommended && recommended.next ? (
           <div className="rounded-2xl bg-blue-950 border border-amber-400 p-5">
