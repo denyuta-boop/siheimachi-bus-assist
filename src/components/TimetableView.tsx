@@ -20,37 +20,40 @@ export function TimetableView({ currentMin }: Props) {
       </button>
 
       {open && (
-        <div className="bg-slate-900 divide-y divide-slate-800">
-          {routes.map((route) => {
-            const nextIdx = route.times.findIndex((t) => t >= currentMin);
-            return (
-              <div key={route.id} className="p-4">
-                <div className="font-semibold text-sm text-slate-300 mb-2">
-                  {route.platform}（{route.direction}）{route.label}
+        <div className="bg-slate-900 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {routes.map((route) => {
+              const nextIdx = route.times.findIndex((t) => t >= currentMin);
+              return (
+                <div key={route.id}>
+                  <div className="text-xs font-semibold text-slate-400 mb-2 leading-snug">
+                    {route.platform}<br />
+                    <span className="text-slate-500">{route.label}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    {route.times.map((t, i) => {
+                      const isPast = t < currentMin;
+                      const isNext = i === nextIdx;
+                      return (
+                        <span
+                          key={t}
+                          className={`tabular-nums text-sm px-2 py-0.5 rounded font-mono ${
+                            isNext
+                              ? 'bg-amber-400 text-slate-900 font-bold'
+                              : isPast
+                              ? 'text-slate-700'
+                              : 'text-slate-400'
+                          }`}
+                        >
+                          {formatTime(t)}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {route.times.map((t, i) => {
-                    const isPast = t < currentMin;
-                    const isNext = i === nextIdx;
-                    return (
-                      <span
-                        key={t}
-                        className={`tabular-nums text-sm px-2 py-0.5 rounded font-mono ${
-                          isNext
-                            ? 'bg-amber-400 text-slate-900 font-bold'
-                            : isPast
-                            ? 'text-slate-700'
-                            : 'text-slate-400'
-                        }`}
-                      >
-                        {formatTime(t)}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
