@@ -31,9 +31,9 @@
 
 ### 今後の拡張（v2以降・優先度低）
 
-- [ ] 平日／土曜／休日でダイヤを自動切り替え（`Date.getDay()`で判定）
+- [x] 平日／土曜／休日でダイヤを自動切り替え（`Date.getDay()`で判定）
 - [ ] GTFS-RT等のリアルタイム運行情報と連携し、遅延を加味した判定に対応
-- [ ] 実際のGTFS-JPデータへの差し替え（現在はモックデータ）
+- [x] 実際のGTFS-JPデータへの差し替え（現在はモックデータ）
 
 ## データ仕様
 
@@ -72,6 +72,7 @@ type Route = {
 <!-- Claude Codeが作業するたびにここに追記していく -->
 
 - 2026-08-16: 仕様書作成、開発開始
+- 2026-08-16: 実ダイヤデータ投入・平日/土曜/休日の自動切り替えを実装（Route.timesをRecord<Schedule, number[]>型に変更、getSchedule()をtimetable.tsに追加）
 - 2026-08-16: v1実装完了
   - Vite + React + TypeScript + Tailwind CSS + vite-plugin-pwa でプロジェクト初期化
   - `src/data/timetable.ts`: Route型定義とモックダイヤデータ（01・02系統）を作成

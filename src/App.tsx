@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { routes } from './data/timetable';
-import { getRouteStatus, formatTime, getRecommendedRoute } from './lib/schedule';
+import { routes, getSchedule } from './data/timetable';
+import { getRouteStatus, formatTime, getRecommendedRoute, scheduleLabel } from './lib/schedule';
 import { BusCard } from './components/BusCard';
 import { TimetableView } from './components/TimetableView';
 
@@ -17,7 +17,8 @@ export default function App() {
   }, []);
 
   const currentMin = now.getHours() * 60 + now.getMinutes();
-  const statuses = routes.map((r) => getRouteStatus(r, currentMin));
+  const schedule = getSchedule(now);
+  const statuses = routes.map((r) => getRouteStatus(r, currentMin, schedule));
   const recommendedId = getRecommendedRoute(statuses);
   const recommended = statuses.find((s) => s.route.id === recommendedId);
 
@@ -31,6 +32,7 @@ export default function App() {
           <p className="text-3xl font-mono font-bold text-teal-400 mt-1">
             {formatClock(now)}
           </p>
+          <p className="text-xs text-slate-500 mt-1">{scheduleLabel(schedule)}</p>
         </header>
 
         {recommended && recommended.next ? (
@@ -79,10 +81,10 @@ export default function App() {
           ))}
         </div>
 
-        <TimetableView currentMin={currentMin} />
+        <TimetableView currentMin={currentMin} schedule={schedule} />
 
         <footer className="text-center text-xs text-slate-600 pb-6">
-          ※ 時刻はモックデータです。実際の運行と異なる場合があります。
+          2026年04月01日改正ダイヤ
         </footer>
       </div>
     </div>

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { routes } from '../data/timetable';
+import type { Schedule } from '../data/timetable';
 import { formatTime } from '../lib/schedule';
 
 type Props = {
   currentMin: number;
+  schedule: Schedule;
 };
 
-export function TimetableView({ currentMin }: Props) {
+export function TimetableView({ currentMin, schedule }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,7 +25,8 @@ export function TimetableView({ currentMin }: Props) {
         <div className="bg-slate-900 p-4">
           <div className="grid grid-cols-2 gap-4">
             {routes.map((route) => {
-              const nextIdx = route.times.findIndex((t) => t >= currentMin);
+              const times = route.times[schedule];
+              const nextIdx = times.findIndex((t) => t >= currentMin);
               return (
                 <div key={route.id}>
                   <div className="text-xs font-semibold text-slate-400 mb-2 leading-snug">
@@ -31,7 +34,7 @@ export function TimetableView({ currentMin }: Props) {
                     <span className="text-slate-500">{route.label}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    {route.times.map((t, i) => {
+                    {times.map((t, i) => {
                       const isPast = t < currentMin;
                       const isNext = i === nextIdx;
                       return (

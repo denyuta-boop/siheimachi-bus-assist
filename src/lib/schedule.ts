@@ -1,4 +1,4 @@
-import type { Route } from '../data/timetable';
+import type { Route, Schedule } from '../data/timetable';
 
 export type NextBus = {
   departureMin: number;
@@ -12,11 +12,6 @@ export type RouteStatus = {
   following: NextBus | null;
 };
 
-function nowInMinutes(): number {
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
-}
-
 function toNextBus(departureMin: number, currentMin: number, duration: number): NextBus {
   return {
     departureMin,
@@ -25,14 +20,12 @@ function toNextBus(departureMin: number, currentMin: number, duration: number): 
   };
 }
 
-export function getRouteStatus(route: Route, currentMin?: number): RouteStatus {
-  const now = currentMin ?? nowInMinutes();
-  const upcoming = route.times.filter((t) => t >= now);
-
+export function getRouteStatus(route: Route, currentMin: number, schedule: Schedule): RouteStatus {
+  const upcoming = route.times[schedule].filter((t) => t >= currentMin);
   return {
     route,
-    next: upcoming[0] != null ? toNextBus(upcoming[0], now, route.duration) : null,
-    following: upcoming[1] != null ? toNextBus(upcoming[1], now, route.duration) : null,
+    next: upcoming[0] != null ? toNextBus(upcoming[0], currentMin, route.duration) : null,
+    following: upcoming[1] != null ? toNextBus(upcoming[1], currentMin, route.duration) : null,
   };
 }
 
@@ -49,4 +42,10 @@ export function getRecommendedRoute(statuses: RouteStatus[]): '01' | '02' | null
   if (!b.next) return a.route.id;
   if (a.next.arrivalMin <= b.next.arrivalMin) return a.route.id;
   return b.route.id;
+}
+
+export function scheduleLabel(s: Schedule): string {
+  if (s === 'saturday') return '土曜ダイヤ';
+  if (s === 'holiday') return '休日ダイヤ';
+  return '平日ダイヤ';
 }
