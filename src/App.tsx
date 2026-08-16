@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { routes } from './data/timetable';
-import { getRouteStatus } from './lib/schedule';
-import { RecommendBanner } from './components/RecommendBanner';
-import { RouteCard } from './components/RouteCard';
+import { getRouteStatus, formatTime, getRecommendedRoute } from './lib/schedule';
+import { BusCard } from './components/BusCard';
 import { TimetableView } from './components/TimetableView';
 
 function formatClock(d: Date): string {
@@ -19,30 +18,70 @@ export default function App() {
 
   const currentMin = now.getHours() * 60 + now.getMinutes();
   const statuses = routes.map((r) => getRouteStatus(r, currentMin));
+  const recommendedId = getRecommendedRoute(statuses);
+  const recommended = statuses.find((s) => s.route.id === recommendedId);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen bg-slate-900 text-white">
       <div className="max-w-md mx-auto px-4 py-6 space-y-4">
         <header className="text-center">
-          <h1 className="text-lg font-bold text-slate-700 dark:text-slate-200">
+          <h1 className="text-base font-semibold text-slate-400">
             子平町・壽徳寺前 → 仙台駅
           </h1>
-          <p className="text-2xl font-mono font-bold text-blue-600 dark:text-blue-400 mt-1">
+          <p className="text-3xl font-mono font-bold text-teal-400 mt-1">
             {formatClock(now)}
           </p>
         </header>
 
-        <RecommendBanner statuses={statuses} />
+        {recommended && recommended.next ? (
+          <div className="rounded-2xl bg-blue-950 border border-amber-400 p-5">
+            <div className="text-xs font-bold tracking-widest text-amber-400 uppercase mb-1">
+              今すぐ乗るなら
+            </div>
+            <div className="text-xl font-bold text-white mb-0.5">
+              {recommended.route.label}
+            </div>
+            <div className="text-xs text-slate-400 mb-4">
+              {recommended.route.platform}（{recommended.route.direction}）
+            </div>
+            <div className="flex items-end gap-4">
+              <div>
+                <div className="text-xs text-slate-400">発車</div>
+                <div className="text-3xl font-bold tabular-nums text-white">
+                  {formatTime(recommended.next.departureMin)}
+                </div>
+              </div>
+              <div className="text-slate-500 text-sm mb-1">→</div>
+              <div>
+                <div className="text-xs text-slate-400">仙台駅着（目安）</div>
+                <div className="text-3xl font-bold tabular-nums text-teal-400">
+                  {formatTime(recommended.next.arrivalMin)}
+                </div>
+              </div>
+              <div className="ml-auto text-right">
+                <div className="text-xs text-slate-400">待ち</div>
+                <div className="text-2xl font-bold text-amber-400">
+                  {recommended.next.waitMin}
+                  <span className="text-base ml-0.5">分</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-slate-800 border border-slate-700 p-5 text-center text-slate-500">
+            本日の運行は終了しました
+          </div>
+        )}
 
         <div className="space-y-3">
           {statuses.map((s) => (
-            <RouteCard key={s.route.id} status={s} allStatuses={statuses} />
+            <BusCard key={s.route.id} status={s} allStatuses={statuses} />
           ))}
         </div>
 
         <TimetableView currentMin={currentMin} />
 
-        <footer className="text-center text-xs text-slate-400 pt-2 pb-6">
+        <footer className="text-center text-xs text-slate-600 pb-6">
           ※ 時刻はモックデータです。実際の運行と異なる場合があります。
         </footer>
       </div>
